@@ -1,0 +1,67 @@
+rain_common.py is the main controller for training. It reads the configuration file, loads the prepared dataset (train.bin and val.bin), builds the GPT model, creates the AdamW optimizer, optionally compiles the model, creates the Trainer, and starts the training process. It also safely handles interruptions and errors by saving training history and releasing GPU memory.
+
+
+compare.py is used after training to compare the original GPT-2 model with our fine-tuned model. It gives both models the same prompt and generates responses. By comparing the outputs, we can check whether fine-tuning successfully changed the model's writing style to match Bertrand Russell's writings.
+
+
+plot_loss.py  plots the training loss and validation loss as a graph,
+
+
+prepare_data.py is a launcher script used to prepare datasets for training. It takes the dataset name as input, finds that dataset's prepare.py file, runs it, and generates the required training files
+
+
+sample.py is used to generate text from a GPT model. We provide a prompt, choose whether to use the original GPT-2 or our fine-tuned model, and the script generates one or more text samples
+
+
+train.py is the entry script used to train a GPT model from scratch. It reads the configuration file, calls the shared training code in _train_common.py, builds a new model, loads the dataset, and starts the training process. It is mainly used for training a model from the beginning instead of fine-tuning an existing GPT-2 model
+
+
+train_shakespeare_char.toml
+Configuration for training a small GPT model from scratch on the Tiny Shakespeare dataset.
+
+
+build.py file is responsible for building the GPT model before training starts. It checks the init_from setting in the configuration file and decides whether to create a new model from scratch, load a previously saved checkpoint to resume training, or load a pretrained GPT-2 model for fine-tuning.
+
+
+common.py file contains helper functions used during training. It automatically detects whether to use the CPU or GPU, chooses the best data type (float32, float16, or bfloat16) for efficient training, enables mixed precision to improve speed and reduce memory usage, and sets up logging to display the training progress. It helps the training script run efficiently on different hardware without requiring manual configuration.
+
+
+config.py manages all the training configuration. It reads the settings from the .toml file, stores them in a TrainConfig object, checks that each value has the correct data type, applies any command-line overrides, and provides the final configuration to the training script. This makes it easy to change training settings without modifying the source code.
+
+
+finetune_gpt2_russell.toml
+Configuration for fine-tuning the pretrained GPT-2 (124M) model on Bertrand Russell's writings
+
+
+finetune_gpt2_local.toml
+Configuration for fine-tuning GPT-2 on a local GPU
+
+
+data.py manages the complete data pipeline. It downloads or reads the dataset, removes unnecessary text, combines all the files into one corpus, converts the text into tokens (or characters), splits it into training and validation sets, and saves them as train.bin, val.bin, and meta.pkl. During training, it also loads small batches of data from these files and feeds them to the GPT model. It is responsible for both preparing the dataset and supplying data during training."
+
+
+generate.py is responsible for text generation. It can load either a fine-tuned GPT checkpoint or the original pretrained GPT-2 model, prepare the appropriate tokenizer, convert the input prompt into tokens, generate new text using the model, and convert the generated tokens back into readable text. Other scripts like sample.py and compare.py use the functions in this file to generate text.
+
+
+model.py defines the complete GPT architecture. It includes the embedding layers, self-attention mechanism, feed-forward network (MLP), transformer blocks, and the main GPT model. It also provides functions to load pretrained GPT-2 weights, configure the optimizer, perform forward passes during training, and generate text after training. In short, this file builds the neural network that learns from text and predicts the next word
+
+
+trainer.py file is the heart of the training process—it manages the entire lifecycle of training, including loading data, computing loss, updating model weights, evaluating performance, saving checkpoints, and logging progress.
+
+
+
+Flowchart:
+prepare_data.py	    Starts dataset preparation
+data/<dataset>/prepare.py	    Defines dataset details
+data.py	    Creates train.bin, val.bin, loads batches
+config.py	    Stores all training configuration
+build.py	Builds GPT model (scratch, resume, GPT-2)
+model.py	Complete GPT architecture
+common.py	Device, dtype, mixed precision utilities
+trainer.py	Complete training loop, checkpointing, evaluation
+train.py	Train GPT from scratch
+finetune.py	Fine-tune pretrained GPT-2
+generate.py	Loads models and generates text
+sample.py	Generates text from one model
+compare.py	Compares GPT-2 with fine-tuned model
+plot_loss.py	Plots training and validation loss graphs
