@@ -1,4 +1,4 @@
-# nanogpt-1
+
 
 # Disease Description Generation using nanoGPT
 
