@@ -1,6 +1,6 @@
 
 
-# Disease Description Generation using nanoGPT
+# Simple Disease Description Generation using nanoGPT
 
 ## Overview
 
